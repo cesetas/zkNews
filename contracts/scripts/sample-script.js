@@ -14,12 +14,14 @@ async function main() {
   // await hre.run('compile');
 
   // We get the contract to deploy
-  const zkNews = await hre.ethers.getContractFactory("zkNews");
-  const greeter = await zkNews.deploy("zkNews");
+  const ZkNews = await hre.ethers.getContractFactory("zkNews");
+  const zkNews = await ZkNews.deploy(
+    "0x1c6669304edc1a1C5c8EC875c2bf570d35D2c8bF"
+  );
 
-  await greeter.deployed();
+  await zkNews.deployed();
 
-  console.log("Greeter deployed to:", greeter.address);
+  console.log("zkNews deployed to:", zkNews.address);
 }
 
 // We recommend this pattern to be able to use async/await everywhere
