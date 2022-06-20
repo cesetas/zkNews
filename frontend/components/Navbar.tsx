@@ -1,5 +1,8 @@
 import * as React from "react";
+import { useEffect } from "react";
 import { MenuIcon, XIcon } from "@heroicons/react/outline";
+import { useMoralis } from "react-moralis";
+import { ConnectButton } from "web3uikit";
 import Link from "next/link";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
@@ -22,7 +25,7 @@ const pages = ["News", "Articles", "Categories"];
 const settings = ["Account", "Dashboard", "Logout"];
 
 const Navbar = () => {
-  const [account, setAccount] = React.useState(null);
+  const [myAccount, setMyAccount] = React.useState(null);
 
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
@@ -64,24 +67,61 @@ const Navbar = () => {
   //         })
   //     })()
   // }, [])
+  const {
+    enableWeb3,
+    account,
+    isWeb3Enabled,
+    isWeb3EnableLoading,
+    Moralis,
+    deactivateWeb3,
+  } = useMoralis();
 
   const connectWallet = async () => {
-    const { ethereum } = window;
-
-    if (!ethereum) {
+    if (!window.ethereum) {
       alert("Install metamask!");
+      return;
     }
 
-    try {
-      const accounts = await ethereum.request({
-        method: "eth_requestAccounts",
-      });
-      console.log("account[0]: ", accounts[0]);
-      setAccount(accounts[0]);
-    } catch (err) {
-      console.log(err);
-    }
+    await enableWeb3();
+    console.log(account);
+    setMyAccount(account);
+
+    // try {
+    //   const accounts = await ethereum.request({
+    //     method: "eth_requestAccounts",
+    //   });
+    //   console.log("account[0]: ", accounts[0]);
+    //   setAccount(accounts[0]);
+    // } catch (err) {
+    //   console.log(err);
+    // }
   };
+  // useEffect(() => {}, []);
+  useEffect(() => {}, [isWeb3Enabled]);
+
+  useEffect(() => {
+    if (isWeb3Enabled) return;
+    if (typeof window !== "undefined") {
+      if (window.localStorage.getItem("connected")) {
+        enableWeb3();
+        // enableWeb3({provider: window.localStorage.getItem("connected")}) // add walletconnect
+      }
+    }
+  }, [isWeb3Enabled]);
+  // no array, run on every render
+  // empty array, run once
+  // dependency array, run when the stuff in it changesan
+
+  useEffect(() => {
+    Moralis.onAccountChanged((account) => {
+      console.log(`Account changed to ${account}`);
+      if (account == null) {
+        window.localStorage.removeItem("connected");
+        deactivateWeb3();
+        console.log("Null Account found");
+      }
+    });
+  }, []);
 
   return (
     <>
@@ -208,26 +248,26 @@ const Navbar = () => {
                 ))}
               </Menu>
               {!account ? (
-                <Link href="/Login">
+                <Link href="/login">
                   <Button color="inherit">Login</Button>
                 </Link>
               ) : (
-                <Button onMouseDown={(e) => e.preventDefault()} color="inherit">
-                  {account}
-                </Button>
+                <Link href="/login">
+                  <Button color="inherit">Login</Button>
+                </Link>
               )}
 
-              {!account ? (
-                <Link href="/Login">
-                  <Button onClick={connectWallet} color="inherit">
-                    Connect Wallet
-                  </Button>
-                </Link>
+              {account ? (
+                <Button color="inherit">
+                  {account.slice(2, 6)}...{account.slice(account.length - 4)}
+                </Button>
               ) : (
-                <Button onMouseDown={(e) => e.preventDefault()} color="inherit">
-                  {account}
+                <Button onClick={connectWallet} color="inherit">
+                  Connect Wallet
+                  {myAccount}
                 </Button>
               )}
+              <ConnectButton moralisAuth={false} />
             </Box>
           </Toolbar>
         </Container>

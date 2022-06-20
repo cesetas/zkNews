@@ -4,6 +4,7 @@
 /node_modules
 /.pnp
 .pnp.js
+/constants
 
 # testing
 /coverage
@@ -32,3 +33,9 @@ yarn-error.log*
 .vercel
 
 config.json
+
+# local env files
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local

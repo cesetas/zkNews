@@ -1,6 +1,7 @@
 require("@nomiclabs/hardhat-waffle");
-require("dotenv").config();
-
+require("dotenv").config({ path: __dirname + "/.env" });
+const { LOC_URL, PRIVATE_KEY } = process.env;
+const { config } = require("../frontend/constants");
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
 // task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
@@ -17,21 +18,32 @@ require("dotenv").config();
 /**
  * @type import('hardhat/config').HardhatUserConfig
  */
+
 module.exports = {
-  defaultNetwork: "ropsten",
-  solidity: "0.8.4",
+  solidity: "0.8.7",
   networks: {
-    ropsten: {
-      url: process.env.RPC_URL,
-      accounts:
-        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+    localhost: {
+      url: config.LOC_URL,
+      accounts: [config.LOC_PRIVATE_KEY],
     },
   },
 };
-
 // settings: {
 //   optimizer: {
 //     enabled: true,
 //     runs: 200,
 //   },
 // },
+
+// module.exports = {
+//   defaultNetwork: "ropsten",
+//   solidity: "0.8.4",
+//   networks: {
+//     ropsten: {
+//       url: process.env.RPC_URL,
+//       accounts:
+//         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+//         chainId: ?????,
+//     },
+//   },
+// };

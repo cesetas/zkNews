@@ -14,9 +14,16 @@ import {
   Stack,
 } from "@mui/material/";
 import Link from "next/link";
+import { useWeb3Contract } from "react-moralis";
 import { contractAddresses } from "../constants";
 import abi from "../../contracts/artifacts/contracts/zkNews.sol/zkNews.json";
-import { getContract } from "../utils/contract";
+import { useMoralis } from "react-moralis";
+import { AbiItem } from "web3-utils";
+import { useNotification } from "web3uikit";
+
+const URL = process.env.NEXT_PUBLIC_LOC_RPC_URL;
+const KEY = process.env.NEXT_PUBLIC_LOC_PRIVATE_KEY;
+const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
 
 const login = () => {
   const [isLoging, setIsLoging] = useState(false);
@@ -28,50 +35,38 @@ const login = () => {
 
   const handleLogin = async () => {
     setIsLoging(true);
+    // const { ethereum } = window;
     if (!window.ethereum) {
       alert("Install metamask");
       setIsLoging(false);
       return;
     }
 
-    // const provider = (await detectEthereumProvider()) as any;
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    await provider.send("eth_requestAccounts", []);
+    const provider = (await detectEthereumProvider()) as any;
 
-    // await provider.request({ method: "eth_requestAccounts" });
-    // const ethersProvider = new providers.Web3Provider(provider);
-    // const signer = ethersProvider.getSigner();
-    const signer = provider.getSigner();
+    await provider.request({ method: "eth_requestAccounts" });
+    const ethersProvider = new providers.Web3Provider(provider);
+    const signer = ethersProvider.getSigner();
 
     const message = await signer.signMessage("Sign this message to join us");
 
     const identity = new ZkIdentity(Strategy.MESSAGE, message);
     const identityCommitment = identity.genIdentityCommitment();
 
-    let identityCommitments: any = [];
+    let currentIdentityCommitments = [];
+    const response = await fetch("http://localhost:3000/api/identity", {
+      method: "GET",
+    });
 
-    const zkNewsContract = await new ethers.Contract(
-      zkNewsAddress,
-      abi.abi,
-      signer
-    );
-    // const { contract, account } = await getContract();
-    // const account = contract.address;
-
-    // let options = { from: account, gas: 6721900 };
-    const tx = await zkNewsContract.getIdentityCommitments();
-
-    for (var i = 0; i < tx.length; i++) {
-      identityCommitments.push(tx[i].toString());
+    if (response.status === 500) {
+      console.log(response);
+    } else {
+      currentIdentityCommitments = await response.json();
     }
 
-    console.log("IdentityCommitments  : " + identityCommitments);
-
-    const isIdentityIncludedBefore = identityCommitments.includes(
+    const isIdentityIncludedBefore = currentIdentityCommitments.includes(
       identityCommitment.toString()
     );
-
-    console.log("isIdentityIncludedBefore  : " + isIdentityIncludedBefore);
 
     if (isIdentityIncludedBefore) {
       setIsLoging(false);
@@ -82,10 +77,15 @@ const login = () => {
       );
       return;
     } else {
+      const zkNewsContract = new ethers.Contract(
+        zkNewsAddress,
+        abi.abi,
+        signer
+      );
       const tx = await zkNewsContract.insertIdentityAsClient(
         ethers.BigNumber.from(identityCommitment)
       );
-
+      // await tx.wait(1);
       setIsStatusChanged(true);
       setIdentityStatus(false);
       setStatus("Your account have been registered successfully");

@@ -1,5 +1,5 @@
 //SPDX-License-Identifier: GPL-3.0
-pragma solidity ^0.8.4;
+pragma solidity ^0.8.7;
 
 import "@appliedzkp/semaphore-contracts/interfaces/IVerifier.sol";
 import "@appliedzkp/semaphore-contracts/base/SemaphoreCore.sol";
@@ -17,7 +17,7 @@ contract zkNews is SemaphoreCore, SemaphoreGroups, Ownable {
     
 
     struct Post {
-        string postId;
+        bytes32 postId;
         uint256 likes; 
         uint256 dislikes; 
     }
@@ -27,8 +27,12 @@ contract zkNews is SemaphoreCore, SemaphoreGroups, Ownable {
     mapping(bytes32 => Post) public posts; 
 
 
-    event NewPost(string postId, bytes32 signal);
-    event PostLiked(string postId, uint256 likes);
+    event Registration(bytes32 signal);
+    event NewPost(bytes32 postId, bytes32 signal);
+    event PostLiked(bytes32 postId, uint256 likes);
+    event IdentityCommitment(uint256 indexed identityCommitment);
+
+    // Semaphore public semaphore;
 
     constructor(address _verifier) {
         verifier = IVerifier(_verifier);
@@ -43,12 +47,35 @@ contract zkNews is SemaphoreCore, SemaphoreGroups, Ownable {
     }
 
     function insertIdentityAsClient(uint256 _leaf) public {
-       identityCommitments.push(_leaf);
+        identityCommitments.push(_leaf);
+        emit IdentityCommitment(_leaf);
     }
 
 
+    function register(
+        bytes32 signal,
+        uint256 root,
+        uint256 nullifierHash,
+        uint256 externalNullifier,
+        uint256[8] calldata proof
+    )
+        external onlyOwner
+    {
+        _verifyProof(
+                signal,
+                root,
+                nullifierHash,
+                externalNullifier,
+                proof,
+                verifier
+            );
+
+        _saveNullifierHash(nullifierHash);
+        emit Registration(signal);
+    }
+
     function postNews(
-        string memory postId,
+        bytes32 postId,
         bytes32 signal,
         uint256 root,
         uint256 nullifierHash,
@@ -75,7 +102,7 @@ contract zkNews is SemaphoreCore, SemaphoreGroups, Ownable {
     }
 
     function likePost(
-        string memory postId,
+        bytes32 postId,
         bytes32 signal,
         uint256 root,
         uint256 nullifierHash,
@@ -83,7 +110,7 @@ contract zkNews is SemaphoreCore, SemaphoreGroups, Ownable {
         uint256[8] calldata proof
     )
         external
-        returns (string memory, uint256)
+        returns (uint256)
     {
         _verifyProof(
                 signal,
@@ -100,11 +127,11 @@ contract zkNews is SemaphoreCore, SemaphoreGroups, Ownable {
         _saveNullifierHash(nullifierHash);
 
         emit PostLiked(postId, posts[id].likes);
-        return (postId,  posts[id].likes);
+        return (posts[id].likes);
     }
 
     function dislikePost(
-        string memory postId,
+        bytes32 postId,
         bytes32 signal,
         uint256 root,
         uint256 nullifierHash,
@@ -112,7 +139,7 @@ contract zkNews is SemaphoreCore, SemaphoreGroups, Ownable {
         uint256[8] calldata proof
     )
         external
-        returns (string memory, uint256)
+        returns (bytes32, uint256)
     {
         _verifyProof(
                 signal,

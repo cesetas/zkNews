@@ -25,36 +25,34 @@ export default function news({ posts }) {
           {posts.map((post, _id) => {
             return (
               <Grid item xs={1} sm={1} md={1} lg={1} xl={1} key={_id}>
-                <Link href={`/${post._id}`}>
-                  <Card
-                    sx={{
-                      minWidth: 200,
-                      maxWidth: 300,
-                      minHeight: 300,
-                      maxHeight: 300,
-                    }}
-                  >
-                    <CardMedia
-                      component="img"
-                      max-height="10px"
-                      image={post.location}
-                      alt={post.category}
-                    />
-                    <CardContent>
-                      <Typography gutterBottom variant="h5" component="div">
-                        {post.title}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        {post.news}
-                      </Typography>
-                    </CardContent>
-                    <CardActions>
-                      <Button size="small">Like</Button>
-                      <Button size="small">Dislike</Button>
-                      <Button size="small">Fund</Button>
-                    </CardActions>
-                  </Card>
-                </Link>
+                <Card
+                  sx={{
+                    minWidth: 200,
+                    maxWidth: 300,
+                    minHeight: 300,
+                    maxHeight: 300,
+                  }}
+                >
+                  <CardMedia
+                    component="img"
+                    max-height="10px"
+                    image={post.location}
+                    alt={post.category}
+                  />
+                  <CardContent>
+                    <Typography gutterBottom variant="h5" component="div">
+                      {post.title}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {post.news}
+                    </Typography>
+                  </CardContent>
+                  <CardActions>
+                    <Link href={`/${post._id}`}>
+                      <Button size="small">Read the details...</Button>
+                    </Link>
+                  </CardActions>
+                </Card>
               </Grid>
             );
           })}

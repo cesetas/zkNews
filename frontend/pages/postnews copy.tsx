@@ -2,7 +2,9 @@ import React, { useState, useEffect } from "react";
 import detectEthereumProvider from "@metamask/detect-provider";
 import { Strategy, ZkIdentity } from "@zk-kit/identity";
 import { generateMerkleProof, Semaphore } from "@zk-kit/protocols";
-import { providers } from "ethers";
+import { ethers, providers } from "ethers";
+import { getContract } from "../utils/contract";
+import { contractAddresses, abi } from "../constants";
 import Link from "next/link";
 import {
   Button,
@@ -13,6 +15,10 @@ import {
   FormControl,
   createTheme,
   ThemeProvider,
+  Grid,
+  CircularProgress,
+  Alert,
+  Stack,
 } from "@mui/material";
 // import Box from "@mui/material/Box";
 // import Typography from "@mui/material/Typography";
@@ -36,118 +42,147 @@ const initialvalues = {
   dislikes: 0,
 };
 
-function post() {
+function PostNews() {
   const [values, setValues] = useState(initialvalues);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [logs, setLogs] = useState("");
-  const [errors, setErrors] = useState({});
+  // const [errors, setErrors] = useState({});
+  // const [isLoging, setIsLoging] = useState(false);
+  // const [pending, setPending] = useState(false);
+  const [status, setStatus] = useState("");
+  const [isStatusChanged, setIsStatusChanged] = useState(false);
+  const [identityStatus, setIdentityStatus] = useState(false);
+
   const router = useRouter();
 
-  useEffect(() => {
-    if (isSubmitting) {
-      if (Object.keys(errors).length === 0) {
-        // createPost();
-      } else {
-        setIsSubmitting(false);
-      }
-    }
-  }, [errors]);
+  const zkNewsAddress = contractAddresses.localhost;
+
+  // useEffect(() => {
+  //   if (isSubmitting) {
+  //     if (Object.keys(errors).length === 0) {
+  //       // createPost();
+  //     } else {
+  //       setIsSubmitting(false);
+  //     }
+  //   }
+  // }, [errors]);
 
   const createPost = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsSubmitting(true);
 
     const provider = (await detectEthereumProvider()) as any;
-
+    console.log("1");
     if (!provider) {
       alert("MetaMask not found");
       return;
     }
-
+    console.log("2");
     await provider.request({ method: "eth_requestAccounts" });
-
     const ethersProvider = new providers.Web3Provider(provider);
     const signer = ethersProvider.getSigner();
-    const message = await signer.signMessage(
-      "Sign this message to create your identity!"
-    );
-
+    const message = await signer.signMessage("Sign this message to join us");
+    console.log("3");
     const identity = new ZkIdentity(Strategy.MESSAGE, message);
     const identityCommitment = identity.genIdentityCommitment();
+    console.log("4");
+    console.log(identityCommitment);
+    let currentIdentityCommitments = [];
+    const response = await fetch("http://localhost:3000/api/identity", {
+      method: "GET",
+    });
 
-    try {
-      const { contract, account } = await getContract();
-
-      let options = { from: account, gas: 6721900 };
-      let identityCommitments: any = [];
-      const identityCommitmentsBN = await contract.methods
-        .getIdentityCommitments(sessionId)
-        .call(options);
-
-      for (var i = 0; i < identityCommitmentsBN.length; i++) {
-        identityCommitments.push(identityCommitmentsBN[i].toString());
-      }
-      res.status(200).send(identityCommitments);
-    } catch (error: any) {
-      res.status(500).send(error.reason || "Failed to join session");
-    }
-
-    const identityCommitments = await zkNews.getIdentityCommitments();
-    console.log("Identity commitments: ", identityCommitments);
-
-    const signal = "newsPost";
-
-    try {
-      merkleProof = generateMerkleProof(
-        20,
-        BigInt(0),
-        identityCommitments,
-        identityCommitment
-      );
-    } catch (error) {
-      alert(error);
-      isSubmitting(false);
-      return;
-    }
-
-    setLogs("Creating your Semaphore proof...");
-
-    const witness = Semaphore.genWitness(
-      identity.getTrapdoor(),
-      identity.getNullifier(),
-      merkleProof,
-      merkleProof.root,
-      signal
-    );
-
-    const { proof, publicSignals } = await Semaphore.genProof(
-      witness,
-      "./semaphore.wasm",
-      "./semaphore_final.zkey"
-    );
-    const solidityProof = Semaphore.packToSolidityProof(proof);
-
-    try {
-      const res = await fetch("http://localhost:3000/api/posts", {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(values),
-      });
-      router.push("/news");
-    } catch (error) {
-      console.log(error);
-    }
+    console.log("5");
 
     if (response.status === 500) {
-      const errorMessage = await response.text();
-
-      setLogs(errorMessage);
+      console.log(response);
     } else {
-      setLogs("Your post is published");
+      currentIdentityCommitments = await response.json();
     }
+    console.log("6");
+    console.log(currentIdentityCommitments);
+    const isIdentityIncludedBefore = currentIdentityCommitments.includes(
+      identityCommitment.toString()
+    );
+    console.log("7");
+    console.log(isIdentityIncludedBefore);
+
+    // const identityCommitments = [BigInt(1), identityCommitment, BigInt(2)];
+
+    if (!isIdentityIncludedBefore) {
+      setIsSubmitting(false);
+      setIsStatusChanged(true);
+      setIdentityStatus(true);
+      setStatus(
+        "You should complete the registration process. Please try to post after registration."
+      );
+      return;
+    } else {
+      // const merkleProof = generateMerkleProof(
+      //   20,
+      //   BigInt(0),
+      //   currentIdentityCommitments,
+      //   identityCommitment
+      // );
+      // console.log(merkleProof);
+      // console.log("Creating your Semaphore proof...");
+      // console.log("9");
+      // const signal = "newsPost";
+
+      // const witness = Semaphore.genWitness(
+      //   identity.getTrapdoor(),
+      //   identity.getNullifier(),
+      //   merkleProof,
+      //   merkleProof.root,
+      //   signal
+      // );
+      // console.log("10");
+
+      // const { proof, publicSignals } = await Semaphore.genProof(
+      //   witness,
+      //   "./semaphore.wasm",
+      //   "./semaphore_final.zkey"
+      // );
+      // console.log(proof);
+      // console.log(publicSignals);
+      // const solidityProof = Semaphore.packToSolidityProof(proof);
+      // console.log("11");
+      // console.log(solidityProof);
+      // const response = await fetch("/api/nullifier", {
+      //   method: "POST",
+      //   body: JSON.stringify({
+      //     signal,
+      //     nullifierHash: publicSignals.nullifierHash,
+      //     solidityProof: solidityProof,
+      //   }),
+      // });
+      // console.log("12");
+      // if (response.status === 500) {
+      //   const errorMessage = await response.text();
+      //   console.log(errorMessage);
+      // } else {
+      try {
+        const res = await fetch("http://localhost:3000/api/posts", {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(values),
+        });
+        router.push("/news");
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    // const zkNewsContract = new ethers.Contract(zkNewsAddress, abi, signer);
+    // const tx = await zkNewsContract.insertIdentityAsClient(
+    //   ethers.BigNumber.from(identityCommitment)
+    // );
+    // await tx.wait(1);
+    console.log("14");
+    setIsStatusChanged(true);
+    setIdentityStatus(false);
+    setStatus("Your post have been published successfully");
   };
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -156,25 +191,25 @@ function post() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    let errs = validate();
-    setErrors(errs);
+    // let errs = validate();
+    // setErrors(errs);
     setIsSubmitting(true);
-    createPost();
+    createPost(event);
     setValues(initialvalues);
   };
 
-  const validate = () => {
-    let err = {};
+  // const validate = () => {
+  //   let err = {};
 
-    if (!values.title) {
-      err.title = "Title is required";
-    }
-    if (!values.news) {
-      err.description = "News is required";
-    }
+  //   if (!values.title) {
+  //     err.title = "Title is required";
+  //   }
+  //   if (!values.news) {
+  //     err.description = "News is required";
+  //   }
 
-    return err;
-  };
+  //   return err;
+  // };
 
   const [loading, setLoading] = useState(true);
   function handleClick() {
@@ -228,14 +263,7 @@ function post() {
                       id="title"
                       label="Title"
                       variant="outlined"
-                      helperText={
-                        errors.title
-                          ? {
-                              content: "Please enter a title",
-                              pointing: "below",
-                            }
-                          : null
-                      }
+                      helperText="sedat"
                       value={values.title}
                       onChange={handleChange}
                     />
@@ -268,21 +296,28 @@ function post() {
                     />
                     <Button
                       type="submit"
+                      color="inherit"
                       fullWidth
                       variant="contained"
                       endIcon={<SendIcon />}
-                      sx={{ mt: 3, mb: 3 }}
+                      sx={{
+                        mt: 3,
+                        mb: 3,
+                        color: "blue",
+                        backgroundColor: "yellow",
+                      }}
                     >
                       Publish
                     </Button>
+                    <Link href="/">
+                      <Button color="inherit" variant="contained">
+                        Back to homepage
+                      </Button>
+                    </Link>
                   </Box>
                 </>
               )}
             </div>
-
-            <Link href="/">
-              <Button variant="contained">Back to homepage</Button>
-            </Link>
           </FormControl>
         </Container>
       </ThemeProvider>
@@ -290,4 +325,4 @@ function post() {
   );
 }
 
-export default post;
+export default PostNews;
