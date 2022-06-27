@@ -26,6 +26,14 @@ module.exports = {
       url: config.LOC_URL,
       accounts: [config.LOC_PRIVATE_KEY],
     },
+    testnet: {
+      url: config.TEST_URL,
+      accounts: [config.TEST_PRIVATE_KEY],
+    },
+    devnet: {
+      url: config.DEV_URL,
+      accounts: [config.DEV_PRIVATE_KEY],
+    },
   },
 };
 // settings: {
@@ -46,4 +54,3 @@ module.exports = {
 //         chainId: ?????,
 //     },
 //   },
-// };

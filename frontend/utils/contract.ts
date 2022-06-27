@@ -5,9 +5,9 @@ import { contractAddresses, config } from "../constants";
 import abi from "../../contracts/artifacts/contracts/zkNews.sol/zkNews.json";
 
 const getContract = async () => {
-  const PTE_KEY = config.LOC_PRIVATE_KEY;
-  const URL = config.LOC_URL;
-  const contractAddress = contractAddresses.localhost;
+  const PTE_KEY = config.DEV_PRIVATE_KEY;
+  const URL = config.DEV_URL;
+  const contractAddress = contractAddresses.devnet;
 
   const web3 = new Web3(URL as string);
   web3.eth.handleRevert = true; // return custom error messages from contract

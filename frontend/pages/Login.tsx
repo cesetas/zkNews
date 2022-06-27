@@ -68,47 +68,6 @@ const login = () => {
         .insertIdentityAsClient(ethers.BigNumber.from(identityCommitment))
         .send({ from: account, gas: 6721900 });
 
-      const identityCommitmentsSemaphore = [
-        BigInt(1),
-        identityCommitment,
-        BigInt(2),
-      ];
-
-      const merkleProof = generateMerkleProof(
-        20,
-        BigInt(0),
-        identityCommitmentsSemaphore,
-        identityCommitment
-      );
-
-      const signal = "registration";
-
-      const witness = Semaphore.genWitness(
-        identity.getTrapdoor(),
-        identity.getNullifier(),
-        merkleProof,
-        merkleProof.root,
-        signal
-      );
-
-      const { proof, publicSignals } = await Semaphore.genProof(
-        witness,
-        "./semaphore.wasm",
-        "./semaphore_final.zkey"
-      );
-
-      const solidityProof = Semaphore.packToSolidityProof(proof);
-
-      await zkNewsContract.methods
-        .register(
-          utils.formatBytes32String(signal),
-          merkleProof.root,
-          publicSignals.nullifierHash,
-          publicSignals.externalNullifier,
-          solidityProof
-        )
-        .send({ from: account, gas: 6721900 });
-
       setIsStatusChanged(true);
       setIdentityStatus(false);
       setStatus("Your account have been registered successfully");

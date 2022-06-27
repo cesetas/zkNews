@@ -327,7 +327,6 @@ export default function Post({ post }) {
     const privateSalt = salt;
 
     const hashCommitment = poseidon([privateSalt, identityCommitment]);
-    console.log("hash commitment :" + hashCommitment);
 
     const { zkNewsContract, account } = await getContract();
 
@@ -383,27 +382,23 @@ export default function Post({ post }) {
     event.preventDefault();
     setIsDisliking(true);
     dislikePost();
-    // close();
   };
 
   const handleFund = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsFunding(true);
     fundPost();
-    // close();
   };
 
   const handleWithdraw = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsWithdrawing(true);
     withdraw();
-    // close();
   };
 
   const handleDelete = async () => {
     setIsDeleting(true);
     deletePost();
-    // close();
   };
 
   const [loading, setLoading] = useState(true);
@@ -488,7 +483,7 @@ export default function Post({ post }) {
                     <TextField
                       fullWidth
                       id="fund"
-                      label="Fund Amount (ETH)"
+                      label="Fund Amount (ONE)"
                       helperText="Specify the amount as ether"
                       value={fundAmount}
                       onChange={(e) => {
@@ -532,7 +527,7 @@ export default function Post({ post }) {
                     <TextField
                       fullWidth
                       id="withdraw"
-                      label="Withdraw Amount (ETH)"
+                      label="Withdraw Amount (ONE)"
                       value={withdrawAmount}
                       onChange={(e) => {
                         setWithdrawAmount(e.target.value);

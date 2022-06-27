@@ -103,9 +103,8 @@ function PostNews() {
       const postId = data.data._id;
 
       const privateSalt = commitment;
-      console.log(commitment);
+
       const hashCommitment = poseidon([privateSalt, identityCommitment]);
-      console.log("hash commitment :" + hashCommitment);
 
       const { zkNewsContract, account } = await getContract();
 
@@ -120,6 +119,7 @@ function PostNews() {
       setIdentityStatus(false);
       setStatus("Your post have been published successfully");
       setIsSubmitting(false);
+      setCommitment("");
     }
   };
 
@@ -210,6 +210,8 @@ function PostNews() {
                     <MenuItem value={"Politics"}>Politics</MenuItem>
                     <MenuItem value={"Business"}>Business</MenuItem>
                     <MenuItem value={"Sports"}>Sports</MenuItem>
+                    <MenuItem value={"Life"}>Life</MenuItem>
+                    <MenuItem value={"Culture"}>Culture</MenuItem>
                   </Select>
                   <FormHelperText>*Please select a category</FormHelperText>
 

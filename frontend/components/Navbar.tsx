@@ -15,14 +15,6 @@ import {
   Menu,
   Tooltip,
   MenuItem,
-  TextField,
-  FormControl,
-  createTheme,
-  ThemeProvider,
-  Grid,
-  CircularProgress,
-  Alert,
-  Stack,
 } from "@mui/material";
 import ArticleIcon from "@mui/icons-material/Article";
 
@@ -31,7 +23,6 @@ const navigation = [
   { name: "Location", href: "#" },
 ];
 
-const pages = ["News", "Articles", "Categories"];
 const categories = ["Politics", "Business", "Sports", "Life", "Culture"];
 const locations = [
   "Africa",
@@ -224,10 +215,10 @@ const Navbar = () => {
                   <Typography textAlign="center">xxx</Typography>
                 </MenuItem>
 
-                {pages.map((page) => (
-                  <MenuItem key={page} onClick={handleCloseNavMenu}>
+                {categories.map((category) => (
+                  <MenuItem key={category} onClick={handleCloseNavMenu}>
                     {/* <Link href={`/${page}`}> */}
-                    <Typography textAlign="center">{page}</Typography>
+                    <Typography textAlign="center">{category}</Typography>
                     {/* </Link> */}
                   </MenuItem>
                 ))}

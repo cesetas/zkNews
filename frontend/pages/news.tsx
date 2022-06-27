@@ -48,7 +48,7 @@ export default function news({ posts }) {
                   </CardContent>
                   <CardActions>
                     <Link href={`/${post._id}`}>
-                      <Button size="small">Read the details...</Button>
+                      <Button size="small">Go to the details...</Button>
                     </Link>
                   </CardActions>
                 </Card>

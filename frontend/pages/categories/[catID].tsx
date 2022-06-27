@@ -10,15 +10,17 @@ import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import { useRouter } from "next/router";
-// import { useRouter } from "../../node_modules/next/router";
 
 export default function news({ posts }) {
   const router = useRouter();
   const { catID } = router.query;
   const filteredPost = posts.filter((post) => {
-    return post.location === catID;
+    return (
+      post.location.toLowerCase() === catID ||
+      post.category.toLowerCase() === catID
+    );
   });
-  console.log(filteredPost);
+
   return (
     <>
       <Container fixed>
@@ -27,8 +29,8 @@ export default function news({ posts }) {
         </Typography>
         <Grid
           container
-          spacing={{ xs: 1, sm: 2, md: 2 }}
-          columns={{ xs: 1, sm: 2, md: 3, lg: 4, xl: 5 }}
+          spacing={{ xs: 1, sm: 2, md: 4 }}
+          columns={{ xs: 1, sm: 1, md: 1, lg: 2, xl: 2 }}
         >
           {filteredPost.map((filteredPost) => {
             return (
@@ -44,17 +46,17 @@ export default function news({ posts }) {
                 <Link href={`/${filteredPost._id}`}>
                   <Card
                     sx={{
-                      minWidth: 200,
-                      maxWidth: 300,
+                      minWidth: 500,
+                      maxWidth: 800,
                       minHeight: 300,
-                      maxHeight: 300,
+                      maxHeight: 800,
                     }}
                   >
                     <CardMedia
                       component="img"
                       max-height="10px"
-                      image={filteredPost.location}
-                      alt={filteredPost.category}
+                      image={filteredPost.photoURL}
+                      alt={filteredPost.location}
                     />
                     <CardContent>
                       <Typography gutterBottom variant="h5" component="div">
@@ -65,9 +67,9 @@ export default function news({ posts }) {
                       </Typography>
                     </CardContent>
                     <CardActions>
-                      <Button size="small">Like</Button>
-                      <Button size="small">Dislike</Button>
-                      <Button size="small">Fund</Button>
+                      <Link href={`/${filteredPost._id}`}>
+                        <Button size="small">Go to the details...</Button>
+                      </Link>
                     </CardActions>
                   </Card>
                 </Link>
