@@ -38,6 +38,7 @@
     "react-dom": "^18.2.0",
     "react-moralis": "^1.4.0",
     "reactstrap": "^9.0.3",
+    "snarkjs": "^0.4.22",
     "styled-components": "^5.3.5",
     "web3": "^1.7.3",
     "web3-utils": "^1.7.3",

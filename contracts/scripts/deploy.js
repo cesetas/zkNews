@@ -2,9 +2,25 @@ const hre = require("hardhat");
 const contractOwner = require("../../frontend/constants/contractOwner.json");
 
 async function main() {
-  console.log(contractOwner.address);
+  // Semaphore verifier
+  const VerifierContract = await hre.ethers.getContractFactory("Verifier");
+  const verifier = await VerifierContract.deploy();
+
+  await verifier.deployed();
+  console.log("Semaphore verifier deployed to:", verifier.address);
+
+  // // identity verifier
+  // const IdentityVerifier = await hre.ethers.getContractFactory(
+  //   "IdentiyVerifier"
+  // );
+  // const identityVerifier = await IdentityVerifier.deploy();
+
+  // await identityVerifier.deployed();
+
+  // console.log("IdentityVerifier deployed to:", identityVerifier.address);
+
   const ZkNews = await hre.ethers.getContractFactory("zkNews");
-  const zkNews = await ZkNews.deploy(contractOwner.address);
+  const zkNews = await ZkNews.deploy(verifier.address);
 
   await zkNews.deployed();
 

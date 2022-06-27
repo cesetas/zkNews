@@ -4,16 +4,26 @@ import { MenuIcon, XIcon } from "@heroicons/react/outline";
 import { useMoralis } from "react-moralis";
 import { ConnectButton } from "web3uikit";
 import Link from "next/link";
-import AppBar from "@mui/material/AppBar";
-import Box from "@mui/material/Box";
-import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
-import Button from "@mui/material/Button";
-import IconButton from "@mui/material/IconButton";
-import Menu from "@mui/material/Menu";
-import Container from "@mui/material/Container";
-import Tooltip from "@mui/material/Tooltip";
-import MenuItem from "@mui/material/MenuItem";
+import {
+  AppBar,
+  Toolbar,
+  Button,
+  Box,
+  Typography,
+  IconButton,
+  Container,
+  Menu,
+  Tooltip,
+  MenuItem,
+  TextField,
+  FormControl,
+  createTheme,
+  ThemeProvider,
+  Grid,
+  CircularProgress,
+  Alert,
+  Stack,
+} from "@mui/material";
 import ArticleIcon from "@mui/icons-material/Article";
 
 const navigation = [
@@ -22,6 +32,16 @@ const navigation = [
 ];
 
 const pages = ["News", "Articles", "Categories"];
+const categories = ["Politics", "Business", "Sports", "Life", "Culture"];
+const locations = [
+  "Africa",
+  "Asia",
+  "Australia",
+  "Europe",
+  "Latin America",
+  "Middle East",
+  "US&Canada",
+];
 const settings = ["Account", "Dashboard", "Logout"];
 
 const Navbar = () => {
@@ -123,6 +143,28 @@ const Navbar = () => {
     });
   }, []);
 
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const open = Boolean(anchorEl);
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const [anchorEl2, setAnchorEl2] = React.useState(null);
+  const open2 = Boolean(anchorEl2);
+
+  const handleClick2 = (event) => {
+    setAnchorEl2(event.currentTarget);
+  };
+
+  const handleClose2 = () => {
+    setAnchorEl2(null);
+  };
+
   return (
     <>
       <AppBar position="static">
@@ -178,6 +220,10 @@ const Navbar = () => {
                   display: { xs: "block", md: "none" },
                 }}
               >
+                <MenuItem>
+                  <Typography textAlign="center">xxx</Typography>
+                </MenuItem>
+
                 {pages.map((page) => (
                   <MenuItem key={page} onClick={handleCloseNavMenu}>
                     {/* <Link href={`/${page}`}> */}
@@ -207,16 +253,79 @@ const Navbar = () => {
               zkNews
             </Typography>
             <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
-              {pages.map((page) => (
-                <Link key={page} href={`/${page.toLowerCase()}`}>
-                  <Button
-                    onClick={handleCloseNavMenu}
-                    sx={{ my: 2, color: "white", display: "block" }}
+              <Link href="/news">
+                <Button sx={{ my: 2, color: "white", display: "block" }}>
+                  News
+                </Button>
+              </Link>
+              <Button
+                id="demo-positioned-button"
+                aria-controls={open ? "demo-positioned-menu" : undefined}
+                aria-haspopup="true"
+                aria-expanded={open ? "true" : undefined}
+                onClick={handleClick}
+                sx={{ my: 2, color: "white", display: "block" }}
+              >
+                Categories
+              </Button>
+              <Menu
+                id="demo-positioned-menu"
+                aria-labelledby="demo-positioned-button"
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleClose}
+                anchorOrigin={{
+                  vertical: "top",
+                  horizontal: "left",
+                }}
+                transformOrigin={{
+                  vertical: "top",
+                  horizontal: "left",
+                }}
+              >
+                {categories.map((category) => (
+                  <Link
+                    key={category}
+                    href={`/categories/${category.toLowerCase()}`}
                   >
-                    {page}
-                  </Button>
-                </Link>
-              ))}
+                    <MenuItem onClick={handleClose}>{category}</MenuItem>
+                  </Link>
+                ))}
+              </Menu>
+              <Button
+                id="demo-positioned-button"
+                aria-controls={open2 ? "demo-positioned-menu" : undefined}
+                aria-haspopup="true"
+                aria-expanded={open2 ? "true" : undefined}
+                onClick={handleClick2}
+                sx={{ my: 2, color: "white", display: "block" }}
+              >
+                Locations
+              </Button>
+              <Menu
+                id="demo-positioned-menu"
+                aria-labelledby="demo-positioned-button"
+                anchorEl={anchorEl2}
+                open={open2}
+                onClose={handleClose2}
+                anchorOrigin={{
+                  vertical: "top",
+                  horizontal: "left",
+                }}
+                transformOrigin={{
+                  vertical: "top",
+                  horizontal: "left",
+                }}
+              >
+                {locations.map((location) => (
+                  <Link
+                    key={location}
+                    href={`/categories/${location.toLowerCase()}`}
+                  >
+                    <MenuItem onClick={handleClose2}>{location}</MenuItem>
+                  </Link>
+                ))}
+              </Menu>
             </Box>
 
             <Box sx={{ flexGrow: 0 }}>
@@ -247,17 +356,12 @@ const Navbar = () => {
                   </MenuItem>
                 ))}
               </Menu>
-              {!account ? (
-                <Link href="/login">
-                  <Button color="inherit">Login</Button>
-                </Link>
-              ) : (
-                <Link href="/login">
-                  <Button color="inherit">Login</Button>
-                </Link>
-              )}
 
-              {account ? (
+              <Link href="/login">
+                <Button color="inherit">Registration</Button>
+              </Link>
+
+              {/* {account ? (
                 <Button color="inherit">
                   {account.slice(2, 6)}...{account.slice(account.length - 4)}
                 </Button>
@@ -266,7 +370,8 @@ const Navbar = () => {
                   Connect Wallet
                   {myAccount}
                 </Button>
-              )}
+              )} */}
+
               <ConnectButton moralisAuth={false} />
             </Box>
           </Toolbar>

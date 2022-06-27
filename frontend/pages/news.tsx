@@ -8,7 +8,6 @@ import Typography from "@mui/material/Typography";
 import Link from "next/link";
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
-import Box from "@mui/material/Box";
 
 export default function news({ posts }) {
   return (
@@ -19,25 +18,25 @@ export default function news({ posts }) {
         </Typography>
         <Grid
           container
-          spacing={{ xs: 1, sm: 2, md: 2 }}
-          columns={{ xs: 1, sm: 2, md: 3, lg: 4, xl: 5 }}
+          spacing={{ xs: 1, sm: 2, md: 4 }}
+          columns={{ xs: 1, sm: 1, md: 1, lg: 2, xl: 2 }}
         >
           {posts.map((post, _id) => {
             return (
               <Grid item xs={1} sm={1} md={1} lg={1} xl={1} key={_id}>
                 <Card
                   sx={{
-                    minWidth: 200,
-                    maxWidth: 300,
+                    minWidth: 500,
+                    maxWidth: 800,
                     minHeight: 300,
-                    maxHeight: 300,
+                    maxHeight: 800,
                   }}
                 >
                   <CardMedia
                     component="img"
                     max-height="10px"
-                    image={post.location}
-                    alt={post.category}
+                    image={post.photoURL}
+                    alt={post.location}
                   />
                   <CardContent>
                     <Typography gutterBottom variant="h5" component="div">
@@ -60,7 +59,7 @@ export default function news({ posts }) {
         <br />
 
         <Link href="/">
-          <Button fullWidth variant="contained">
+          <Button fullWidth sx={{ color: "blue" }} variant="contained">
             Back to Home
           </Button>
         </Link>
